@@ -27,31 +27,214 @@ Helm is used for several reasons:
 3. **Collaboration**: Teams can share and collaborate on Helm charts.
 4. **Ecosystem**: A rich ecosystem of pre-built charts is available in repositories like Artifact Hub.
 
-## Example Use Case of Helm
+## Example Helm Chart Structure
+```
+my-helm-chart/
+├── Chart.yaml
+├── values.yaml
+├── templates/
+│   ├── deployment.yaml
+│   ├── service.yaml
+│   └── ingress.yaml
+```
 
-### Scenario: Deploying a Simple Web Application
+## Chart.yaml: 
+This file contains metadata about the chart, such as its name, version, and description.
+When you install or upgrade a chart, Helm uses this info to track the release/versioning
+```
+apiVersion: v2
+name: my-helm-chart
+description: A simple Helm chart for a web application
+version: 0.1.0
+appVersion: "1.0"
+```
 
-Let's say you want to deploy a simple web application using Helm. Here’s how you can do it:
+## values.yaml: 
+This file contains the default configuration values for the chart. Users can override these values when installing the chart.
+These values can be referenced in the `templates/deployment.yaml` and `templates/service.yaml`.
+```
+replicaCount: 1
 
-1. **Install Helm**: First, ensure you have Helm installed on your local machine.
+image:
+  repository: nginx
+  tag: stable
+  pullPolicy: IfNotPresent
 
-   `curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash`
-2. ** Add a Chart Repository: Add the Bitnami chart repository, which contains many useful charts.
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  # Annotations for the ingress controller
+  annotations: {}
+  # Hosts for the ingress
+  hosts:
+    - host: chart-example.local
+      paths:
+        - /
+```
+
+## templates/: 
+This directory contains Kubernetes manifest templates that will be rendered into valid Kubernetes YAML files when the chart is installed. The templates can use values from values.yaml.
+
+deployment.yaml: A template for a kubernetes deployment
+This file uses values from `values.yaml` to configure the deployment. 
+When helm renders this template, it replaces the placeholders with values from `values.yaml` or any overridden values to create the kubernetes manifest
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-deployment
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          ports:
+            - containerPort: 80
+
+```
+
+## service.yaml: 
+A template for a Kubernetes Service.
+Similar to `deployment.yaml`, this file uses values from `values.yaml` to configure the service.
+For example it might use `.Values.service.type` to determine the type of service (eg. `ClusterIP`, `NodePort`)
+```
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-service
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 80
+  selector:
+    app: {{ .Release.Name }}
+```
+
+## `.Release` Notes:
+The `.Release` object is a built-in context variable provided by Helm during rendering of the templates. 
+
+It has release `.name`, `.namespace`, `version`, etc. 
+
+`.Release.Name` is specified when you install the chart. For example `helm install my-release my-helm-chart`
+
+> `Release.Namespace`: Kubernetes namespace the release is installed in
+
+> `Release.IsInstall`: boolean indicated if it is an install operation
+
+> `Release.IsUpgrade`: boolean indicated if it is an upgrade operation
+
+> `Release.Time`: time when the release was created or upgraded
+
+Example template to see how `.Release.Name` is used to dynamically name the Kubernetes resource
+```
+<> yaml
+metadata: 
+  name: {{ .Release.Name }}-deployment
+```
+This will create a deployment with a name based on the release name specifified during installation
+```
+<> bash
+helm install my-wordpress bitnami/wordpress
+```
+The deployment will be named `my-wordpress-deployment`. 
+
+## Some basic helm commands
+
+**Initialize Helm (for Helm 2.x only, 3.x does not require initialization)**:
+
+   > ```helm init```
    
-   `helm repo add bitnami https://charts.bitnami.com/bitnami`
-4. ** Search for a Chart: Search for a web application chart, such as WordPress
+**Add a Chart Repository**:
+
+  >  ```helm repo add <repo-name> <repo-url>```
    
-   `helm search repo bitnami/wordpress`
-5. ** Install the Chart: Install the WordPress chart with a custom release name
+  >  ```helm repo add bitnami https://charts.bitnami.com/bitnami```
+
+**Update Chart Repositories**:
+
+  >  ```helm repo update```
+
+**Search for Charts**:
+
+   > ```helm search repo <chart-name>```
    
-   `helm install my-wordpress bitnami/wordpress`
-6.  ** Access the Application: After installation, you can access your WordPress application using the service created by Helm
-7.  ** Upgrade the Application: If you want to upgrade to a new version, you can simply run:
+   > ```helm search repo wordpress```
+
+**Install a Chart**:
+
+   > ```helm install <release-name> <chart-name>```
    
-   `helm upgrade my-wordpress bitnami/wordpress`
-8.  Rollback if Needed: If something goes wrong, you can roll back to the previous version
+   > ```helm install my-wordpress bitnami/wordpress```
 
-   `helm rollback my-wordpress 1`
+**List Installed Releases**:
 
+   > ```helm list```
 
+**Get Information About a Release**:
 
+   > ```helm get all <release-name>```
+   
+   > ```helm get all my-wordpress```
+
+**Upgrade a Release**:
+
+   > ```helm upgrade <release-name> <chart-name> [--set key=value]```
+   
+   > ```helm upgrade my-wordpress bitnami/wordpress --set wordpressPassword=newpassword```
+
+**Rollback a Release**:
+
+   > ```helm rollback <release-name> <revision>```
+   
+   > ```helm rollback my-wordpress 1```
+
+**Uninstall a Release**:
+
+   > ```helm uninstall <release-name>```
+   
+   > ```helm uninstall my-wordpress```
+
+**Show Chart Information**:
+
+   > ```helm show chart <chart-name>```
+   
+   > ```helm show chart bitnami/wordpress```
+
+**Show Values for a Chart**:
+
+   > ```helm show values <chart-name>```
+   
+   > ```helm show values bitnami/wordpress```
+
+**Package a Chart**:
+
+   > ```helm package <chart-directory>```
+   
+   > ```helm package my-helm-chart```
+
+**Lint a Chart**:
+
+   > ```helm lint <chart-directory>```
+   
+   > ```helm lint my-helm-chart```
+
+### Summary
+
+These commands cover the basic operations you will need to manage Helm charts and releases effectively. They allow you to add repositories, install and upgrade applications, and manage the lifecycle of your Kubernetes resources. As you become more familiar with Helm, you may explore additional commands and options to customize your workflows further.
+
+## Summary
+When you package this chart and install it using Helm, the templates will be rendered with the values specified in `values.yaml`, resulting in valid Kubernetes manifests that can be applied to your cluster. You can customize the chart by modifying the `values.yaml` file or by providing your own values during installation.
