@@ -35,5 +35,18 @@ Let's say you want to deploy a simple web application using Helm. Here’s how y
 
 1. **Install Helm**: First, ensure you have Helm installed on your local machine.
 
-   ```bash
-   curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+   `curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash`
+2. ** Add a Chart Repository: Add the Bitnami chart repository, which contains many useful charts.
+   `helm repo add bitnami https://charts.bitnami.com/bitnami`
+3. ** Search for a Chart: Search for a web application chart, such as WordPress
+   `helm search repo bitnami/wordpress`
+4. ** Install the Chart: Install the WordPress chart with a custom release name
+   `helm install my-wordpress bitnami/wordpress`
+5.  ** Access the Application: After installation, you can access your WordPress application using the service created by Helm
+6.  ** Upgrade the Application: If you want to upgrade to a new version, you can simply run:
+   `helm upgrade my-wordpress bitnami/wordpress`
+7.  Rollback if Needed: If something goes wrong, you can roll back to the previous version
+   `helm rollback my-wordpress 1`
+
+
+
