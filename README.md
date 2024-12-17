@@ -1,8 +1,8 @@
-## What is Helm?
+### What is Helm?
 
 Helm is a package manager for Kubernetes, which helps you manage Kubernetes applications. It allows you to define, install, and upgrade even the most complex Kubernetes applications using a simple command-line interface.
 
-## What Does Helm Do?
+### What Does Helm Do?
 
 Helm simplifies the deployment and management of applications on Kubernetes by using "charts." A Helm chart is a collection of files that describe a related set of Kubernetes resources. Helm helps you:
 
@@ -11,7 +11,7 @@ Helm simplifies the deployment and management of applications on Kubernetes by u
 - **Upgrade** applications with new versions.
 - **Roll back** to previous versions if needed.
 
-## Why is Helm Used?
+### Why is Helm Used?
 
 Helm is used for several reasons:
 
@@ -20,14 +20,14 @@ Helm is used for several reasons:
 - **Version Control**: Helm allows you to manage application versions and rollbacks.
 - **Configuration Management**: Helm enables you to manage configurations through values files.
 
-## Benefits of Helm for Managing Kubernetes
+### Benefits of Helm for Managing Kubernetes
 
 1. **Efficiency**: Helm reduces the time and effort required to deploy applications.
 2. **Consistency**: Ensures consistent deployments across different environments.
 3. **Collaboration**: Teams can share and collaborate on Helm charts.
 4. **Ecosystem**: A rich ecosystem of pre-built charts is available in repositories like Artifact Hub.
 
-## Example Helm Chart Structure
+### Example Helm Chart Structure
 ```
 my-helm-chart/
 ├── Chart.yaml
@@ -38,7 +38,7 @@ my-helm-chart/
 │   └── ingress.yaml
 ```
 
-## Chart.yaml: 
+### Chart.yaml: 
 This file contains metadata about the chart, such as its name, version, and description.
 When you install or upgrade a chart, Helm uses this info to track the release/versioning
 ```
@@ -49,7 +49,7 @@ version: 0.1.0
 appVersion: "1.0"
 ```
 
-## values.yaml: 
+### values.yaml: 
 This file contains the default configuration values for the chart. Users can override these values when installing the chart.
 These values can be referenced in the `templates/deployment.yaml` and `templates/service.yaml`.
 ```
@@ -75,7 +75,7 @@ ingress:
         - /
 ```
 
-## templates/: 
+### templates/: 
 This directory contains Kubernetes manifest templates that will be rendered into valid Kubernetes YAML files when the chart is installed. The templates can use values from values.yaml.
 
 deployment.yaml: A template for a kubernetes deployment
@@ -106,7 +106,7 @@ spec:
 
 ```
 
-## service.yaml: 
+### service.yaml: 
 A template for a Kubernetes Service.
 Similar to `deployment.yaml`, this file uses values from `values.yaml` to configure the service.
 For example it might use `.Values.service.type` to determine the type of service (eg. `ClusterIP`, `NodePort`)
@@ -124,7 +124,7 @@ spec:
     app: {{ .Release.Name }}
 ```
 
-## `.Release` Notes:
+### `.Release` Notes:
 The `.Release` object is a built-in context variable provided by Helm during rendering of the templates. 
 
 It has release `.name`, `.namespace`, `version`, etc. 
@@ -152,7 +152,7 @@ helm install my-wordpress bitnami/wordpress
 ```
 The deployment will be named `my-wordpress-deployment`. 
 
-## Some basic helm commands
+### Some basic helm commands
 
 **Initialize Helm (for Helm 2.x only, 3.x does not require initialization)**:
 
@@ -233,8 +233,4 @@ The deployment will be named `my-wordpress-deployment`.
    > ```helm lint my-helm-chart```
 
 ### Summary
-
-These commands cover the basic operations you will need to manage Helm charts and releases effectively. They allow you to add repositories, install and upgrade applications, and manage the lifecycle of your Kubernetes resources. As you become more familiar with Helm, you may explore additional commands and options to customize your workflows further.
-
-## Summary
 When you package this chart and install it using Helm, the templates will be rendered with the values specified in `values.yaml`, resulting in valid Kubernetes manifests that can be applied to your cluster. You can customize the chart by modifying the `values.yaml` file or by providing your own values during installation.
