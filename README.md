@@ -1,8 +1,3 @@
-# helm
-What is helm?
-
-# Helm Presentation
-
 ## What is Helm?
 
 Helm is a package manager for Kubernetes, which helps you manage Kubernetes applications. It allows you to define, install, and upgrade even the most complex Kubernetes applications using a simple command-line interface.
