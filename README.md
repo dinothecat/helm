@@ -19,6 +19,7 @@ Helm is used for several reasons:
 - **Reusability**: Charts can be reused across different projects and teams.
 - **Version Control**: Helm allows you to manage application versions and rollbacks.
 - **Configuration Management**: Helm enables you to manage configurations through values files.
+- **Rollbacks**: Easily rollback to a previous verison
 
 ### Benefits of Helm for Managing Kubernetes
 
